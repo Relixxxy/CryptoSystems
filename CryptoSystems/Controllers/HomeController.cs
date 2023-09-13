@@ -1,32 +1,36 @@
-﻿using CryptoSystems.Models;
+﻿using System.Diagnostics;
+using CryptoSystems.Services.Interfaces;
+using CryptoSystems.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
-namespace CryptoSystems.Controllers
+namespace CryptoSystems.Controllers;
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+    private readonly ILaboratoryWorkService _labService;
+
+    public HomeController(ILogger<HomeController> logger, ILaboratoryWorkService labService)
     {
-        private readonly ILogger<HomeController> _logger;
+        _logger = logger;
+        _labService = labService;
+    }
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+    public IActionResult Index()
+    {
+        return View();
+    }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+    public async Task<IActionResult> LaboratoryWorks()
+    {
+        var labs = await _labService.GetListAsync();
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        return View(labs);
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
