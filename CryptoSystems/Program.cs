@@ -1,15 +1,24 @@
+using CryptoSystems.Data;
+using CryptoSystems.Mappings;
+using CryptoSystems.Services;
+using CryptoSystems.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<ILaboratoryWorkService, LaboratoryWorkService>();
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseInMemoryDatabase("CryptoSystems"));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -24,4 +33,25 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+await CreateDbIfNotExistsAsync(app);
 app.Run();
+
+async Task CreateDbIfNotExistsAsync(IHost host)
+{
+    using var scope = host.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        logger.LogInformation("Initializing database . . .");
+
+        await ApplicationDbContextInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred creating the DB.");
+    }
+}

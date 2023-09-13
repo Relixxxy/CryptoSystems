@@ -1,0 +1,27 @@
+﻿@model IEnumerable<LaboratoryWorkListViewModel>
+
+@{
+    ViewData["Title"] = "Laboratory Works";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">@ViewData["Title"]</h1>
+
+    <ul class="list-group">
+        @foreach (var labWork in Model)
+        {
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a asp-controller="@labWork.ControllerName" asp-action="@labWork.ActionName" asp-route-id="@labWork.Id" class="text-decoration-none">
+                            <strong>Laboratory Work @labWork.Id</strong>
+                        </a>
+                    </div>
+                    <div class="col-md-9">
+                        @labWork.Name
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
