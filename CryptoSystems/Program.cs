@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddSingleton<LabOneCryptoService>();
 builder.Services.AddScoped<ILaboratoryWorkService, LaboratoryWorkService>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
