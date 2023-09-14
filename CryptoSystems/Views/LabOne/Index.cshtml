@@ -3,5 +3,20 @@
     ViewData["Title"] = Model.Name;
 }
 
-<h1>LaboratoryWork @Model.Id</h1>
-<h2>@Model.Name</h2>
+<div class="row">
+    <h1>LaboratoryWork @Model.Id</h1>
+    <h2>@Model.Name</h2>
+</div>
+
+<div class="row mt-5">
+    <div class="col-4">
+        <textarea class="w-100"></textarea>
+    </div>
+    <div class="col-2 d-flex flex-column gap-5">
+        <button class="btn btn-primary">Encrypt</button>
+        <button class="btn btn-warning">Decrypt</button>
+    </div>
+    <div class="col-4">
+        <textarea class="w-100"></textarea>
+    </div>
+</div>
