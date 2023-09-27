@@ -59,13 +59,24 @@ public class LabOneCryptoService
 
         var polynomial = input.Split(" ").Select(n => int.Parse(n)).ToArray();
 
-        if (polynomial is null
-            || polynomial.Length < 1
-            || !polynomial
-                .OrderDescending()
-                .SequenceEqual(polynomial))
+        if (polynomial is null)
         {
-            throw new ArgumentException("Bad polynomial");
+            throw new ArgumentException("Polynomial is null");
+        }
+
+        if (polynomial.Length < 1)
+        {
+            throw new ArgumentException("Polynomial length is less than 1");
+        }
+
+        if (polynomial.Distinct().Count() != polynomial.Length)
+        {
+            throw new ArgumentException("Polynomial contains duplicate items");
+        }
+
+        if (!polynomial.OrderDescending().SequenceEqual(polynomial))
+        {
+            throw new ArgumentException("Polynomial is not in descending order");
         }
 
         _polynomial = polynomial;
