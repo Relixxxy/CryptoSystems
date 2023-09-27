@@ -61,6 +61,7 @@ public class LabOneCryptoService
 
         if (polynomial is null
             || polynomial.Length < 1
+            || polynomial.Distinct().Count() != polynomial.Length
             || !polynomial
                 .OrderDescending()
                 .SequenceEqual(polynomial))
