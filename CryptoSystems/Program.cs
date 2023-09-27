@@ -2,12 +2,14 @@ using CryptoSystems.Data;
 using CryptoSystems.Mappings;
 using CryptoSystems.Services;
 using CryptoSystems.Services.Interfaces;
+using CryptoSystems.Services.LabOne;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddSingleton<LabOneCryptoService>();
 builder.Services.AddScoped<ILaboratoryWorkService, LaboratoryWorkService>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
