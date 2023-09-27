@@ -9,13 +9,40 @@
 </div>
 
 <div class="row d-flex justify-content-around">
+    <div class="col">
+        <div class="form-group mb-5">
+            <label class="control-label mb-1">Set Polynomial:</label>
+            <div class="row mb-2">
+                <div class="col-md-9 col-sm-12">
+                    <input class="form-control" id="polynomial" placeholder="45 40 8 7 6 1 0" />
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <button class="btn btn-primary" id="btnPolynomial">Set Polynomial Key</button>
+                </div>
+            </div>
+
+            <label class="control-label mb-1">Gamma Key:</label>
+            <div class="row mb-2">
+                <div class="col-md-9 col-sm-12">
+                    <input class="form-control" id="gammaKey" disabled />
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <button class="btn btn-primary" id="btnGammaKey">Generate Gamma Key</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div class="row d-flex justify-content-around">
     <div class="col-md-4 col-sm-12">
         <h3>Enter text:</h3>
         <textarea id="inputText" class="w-100 textarea"></textarea>
     </div>
     <div class="col-md-2 col-sm-12 d-flex flex-column justify-content-around">
-        <button class="btn btn-primary">Encrypt</button>
-        <button class="btn btn-warning">Decrypt</button>
+        <button class="btn btn-primary" id="btnEncrypt">Encrypt</button>
+        <button class="btn btn-warning" id="btnDecrypt">Decrypt</button>
     </div>
     <div class="col-md-4 col-sm-12">
         <h3>Operation result:</h3>
@@ -25,18 +52,44 @@
 
 @section scripts {
     <script>
+        $(document).on("ajaxError", function (event, jqXHR, settings, thrownError) {
+            if (jqXHR.responseText) {
+                alert(jqXHR.responseText);
+            } else {
+                alert("An error occurred during the AJAX request.");
+            }
+        });
+
         $(document).ready(function () {
-            $("button.btn-primary").click(function () {
-                var inputText = $("#inputText").val();
+            $("#btnEncrypt").click(function () {
+                const inputText = $("#inputText").val();
                 $.post("/LabOne/Encrypt", { inputText: inputText }, function (result) {
                     $("#outputText").val(result);
                 });
             });
 
-            $("button.btn-warning").click(function () {
-                var inputText = $("#inputText").val();
+            $("#btnDecrypt").click(function () {
+                const inputText = $("#inputText").val();
                 $.post("/LabOne/Decrypt", { inputText: inputText }, function (result) {
                     $("#outputText").val(result);
+                });
+            });
+
+            $("#btnPolynomial").click(function () {
+                var polynomialInput = $("#polynomial").val();
+                var regex = /^\d+(?:\s\d+)*$/;
+
+                if (!regex.test(polynomialInput)) {
+                    alert("Polynomial input is not in the correct format.");
+                    return; 
+                }
+
+                $.post("/LabOne/SetPolynomial", { input: polynomialInput });
+            });
+
+            $("#btnGammaKey").click(function () {
+                $.post("/LabOne/GenerateGammaKey", function (result) {
+                    $("#gammaKey").val(result);
                 });
             });
         });

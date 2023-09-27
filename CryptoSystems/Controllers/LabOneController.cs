@@ -1,5 +1,5 @@
-﻿using CryptoSystems.Services;
-using CryptoSystems.Services.Interfaces;
+﻿using CryptoSystems.Services.Interfaces;
+using CryptoSystems.Services.LabOne;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CryptoSystems.Controllers;
@@ -26,16 +26,61 @@ public class LabOneController : Controller
     [HttpPost]
     public ActionResult Encrypt(string inputText)
     {
-        string encryptedText = _labCryptoService.Encrypt(inputText);
+        try
+        {
+            string encryptedText = _labCryptoService.Encrypt(inputText);
 
-        return Content(encryptedText);
+            return Content(encryptedText);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost]
     public ActionResult Decrypt(string inputText)
     {
-        string decryptedText = _labCryptoService.Decrypt(inputText);
+        try
+        {
+            string decryptedText = _labCryptoService.Decrypt(inputText);
 
-        return Content(decryptedText);
+            return Content(decryptedText);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost]
+    public ActionResult SetPolynomial(string input)
+    {
+        try
+        {
+            _labCryptoService.SetPolynomial(input);
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost]
+    public ActionResult GenerateGammaKey()
+    {
+        try
+        {
+            _labCryptoService.GenerateGammaKeyWithLFSR();
+            var gammaKeyString = string.Join(" ", _labCryptoService.GammaKey);
+
+            return Content(gammaKeyString);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

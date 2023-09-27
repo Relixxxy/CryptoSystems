@@ -1,24 +1,26 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
-namespace CryptoSystems.Services;
+namespace CryptoSystems.Services.LabOne;
 
 public class LabOneCryptoService
 {
-    private IList<byte> _gammaKey = null!;
+    private int[] _polynomial = null!;
 
-    public LabOneCryptoService()
-    {
-        var polynomial = new int[] { 46, 8, 7, 6, 0 };
-        SetGammaKeyWithLFSR(polynomial);
-    }
+    public IList<byte> GammaKey { get; private set; } = null!;
 
     public string Encrypt(string plaintext)
     {
-        byte[] encryptedBytes = new byte[plaintext.Length];
+        if (GammaKey is null)
+        {
+            throw new Exception("Gamma Key can't be null");
+        }
+
+        var encryptedBytes = new byte[plaintext.Length];
 
         for (int i = 0; i < plaintext.Length; i++)
         {
-            encryptedBytes[i] = (byte)(plaintext[i] ^ _gammaKey[i % _gammaKey.Count]);
+            encryptedBytes[i] = (byte)(plaintext[i] ^ GammaKey[i % GammaKey.Count]);
         }
 
         var encryptedText = Convert.ToBase64String(encryptedBytes);
@@ -28,12 +30,17 @@ public class LabOneCryptoService
 
     public string Decrypt(string encryptedText)
     {
+        if (GammaKey is null)
+        {
+            throw new Exception("Gamma Key can't be null");
+        }
+
         var encryptedBytes = Convert.FromBase64String(encryptedText);
         var decryptedBytes = new byte[encryptedBytes.Length];
 
         for (int i = 0; i < encryptedBytes.Length; i++)
         {
-            decryptedBytes[i] = (byte)(encryptedBytes[i] ^ _gammaKey[i % _gammaKey.Count]);
+            decryptedBytes[i] = (byte)(encryptedBytes[i] ^ GammaKey[i % GammaKey.Count]);
         }
 
         string decryptedText = Encoding.UTF8.GetString(decryptedBytes);
@@ -41,8 +48,17 @@ public class LabOneCryptoService
         return decryptedText;
     }
 
-    public void SetGammaKeyWithLFSR(int[] polynomial)
+    public void SetPolynomial(string input)
     {
+        string pattern = @"^\d+(?:\s\d+)*$";
+
+        if (!Regex.IsMatch(input, pattern))
+        {
+            throw new ArgumentException("Invalid format");
+        }
+
+        var polynomial = input.Split(" ").Select(n => int.Parse(n)).ToArray();
+
         if (polynomial is null
             || polynomial.Length < 1
             || !polynomial
@@ -52,32 +68,32 @@ public class LabOneCryptoService
             throw new ArgumentException("Bad polynomial");
         }
 
-        var bytes = InitBytesWithPolynomial(polynomial);
-        _gammaKey = GetGammaKeyWithLFSR(polynomial, bytes);
+        _polynomial = polynomial;
     }
 
-    private IList<byte> GetGammaKeyWithLFSR(int[] polynomial, byte[] bytes)
+    public void GenerateGammaKeyWithLFSR()
     {
+        if (_polynomial is null)
+        {
+            throw new Exception("Polynomial can't be null");
+        }
+
+        var bytes = InitBytesWithPolynomial(_polynomial);
         var gammaKey = new List<byte>(bytes.Length);
         var shiftRegister = new Queue<byte>(bytes);
 
         for (int i = 0; i < bytes.Length; i++)
         {
-            var feedbackBytes = shiftRegister.Where((b, j) => polynomial.Contains(j)).ToArray();
+            var feedbackBytes = shiftRegister.Where((b, j) => _polynomial.Contains(j)).ToArray();
             byte newByte = XoR(feedbackBytes);
 
             gammaKey.Add(newByte);
 
             shiftRegister.Enqueue(newByte);
             shiftRegister.Dequeue();
-
-            Console.WriteLine("Gamma Key");
-            Console.WriteLine(string.Join(", ", gammaKey));
-            Console.WriteLine("Shift Register");
-            Console.WriteLine(string.Join(", ", shiftRegister));
         }
 
-        return gammaKey.ToArray();
+        GammaKey = gammaKey.ToArray();
     }
 
     private byte XoR(byte[] bytes)
