@@ -22,7 +22,7 @@ public class ApplicationDbContextInitializer
         yield return new LaboratoryWork()
         {
             Id = 1,
-            Name = "Laboratory work name",
+            Name = "Stream encryption based on a linear feedback shift register",
             Description = "Laboratory work description",
             ControllerName = "LabOne",
             ActionName = "Index"
